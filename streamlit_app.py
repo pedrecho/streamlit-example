@@ -1,5 +1,10 @@
-import streamlit as st
+import subprocess
+import sys
+def install(package):
+   subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 install('torchaudio')
+
+import streamlit as st
 import torchaudio
 import torch
 import whisper
