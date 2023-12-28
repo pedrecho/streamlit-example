@@ -1,4 +1,5 @@
 import streamlit as st
+!pip install torchaudio
 import torchaudio
 import torch
 import whisper
