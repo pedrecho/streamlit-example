@@ -40,7 +40,7 @@ pillow
 protobuf
 psutil
 pyarrow
-PyAudio
+PyAudio==0.2.11
 pycparser
 pydeck
 pydub
