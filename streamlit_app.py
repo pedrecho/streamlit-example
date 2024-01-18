@@ -9,16 +9,16 @@ import numpy as np
 from pydub import AudioSegment
 import io
 
-# language_model = whisper.load_model("medium")
-language_model = whisper.load_model("small")
-emotion_model = HubertForSequenceClassification.from_pretrained(
-    "xbgoose/hubert-speech-emotion-recognition-russian-dusha-finetuned")
+
+language_model = whisper.load_model("medium")
+emotion_model = HubertForSequenceClassification.from_pretrained("xbgoose/hubert-speech-emotion-recognition-russian-dusha-finetuned")
 emotion_model.feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained("facebook/hubert-large-ls960-ft")
 emotion_model.num2emotion = {0: 'neutral', 1: 'angry', 2: 'positive', 3: 'sad', 4: 'other'}
 
 st.title("Распознавание речи и эмоций")
 
 audio_file = st.file_uploader("Выберите аудиофайл", type=["wav", "mp3"])
+
 
 duration = st.slider("Выберите продолжительность записи (секунды):", 1, 10, 3)
 
@@ -31,12 +31,12 @@ if start_recording:
     sd.wait()
 
     st.success("Запись завершена!")
-
+    
     audio_segment = AudioSegment(
-        audio_data.tobytes(),
-        frame_rate=16000,
-        sample_width=audio_data.dtype.itemsize,
-        channels=1
+    audio_data.tobytes(),
+    frame_rate=16000,
+    sample_width=audio_data.dtype.itemsize,
+    channels=1
     )
 
     audio_bytes = audio_segment.export(format="wav").read()
@@ -56,6 +56,7 @@ if start_recording:
         truncation=True
     )
 
+
     inputs['input_values'] = inputs['input_values'].view(1, 1, -1)
 
     logits = emotion_model(inputs['input_values'][0]).logits
@@ -72,17 +73,23 @@ if start_recording:
     waveform = whisper.pad_or_trim(waveform)
 
     mel = whisper.log_mel_spectrogram(waveform).to(language_model.device)
-
+    
+    
     languages = language_model.detect_language(mel)
     probs = {str(i): prob for i, prob in enumerate(languages)}
     max_language = max(probs["1"][0], key=lambda x: probs["1"][0][x])
     st.write("Язык: ", max_language)
 
+
+
     options = whisper.DecodingOptions(fp16=False)
     result = whisper.decode(language_model, mel, options)
-
+    
     transcripted_text = result[0].text
     st.write("Распознанный текст: ", transcripted_text)
+
+    
+
 
 if audio_file:
     waveform, sample_rate = torchaudio.load(audio_file, normalize=True, num_frames=int(duration * 16000))
